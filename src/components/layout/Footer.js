@@ -31,8 +31,8 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-center">الدعم الفني</h4>
             <ul className="space-y-3 text-center">
               <li><a href="/terms-and-conditions" className="text-base font-medium text-white underline"> الشروط والاحكام</a></li>
-              <li><a href="#" className="text-base font-medium text-white underline"> الشكاوي والمقترحات</a></li>
-              <li><a href="#" className="text-base font-medium text-white underline"> الاسئلة الشائعة</a></li>
+              <li><button className="text-base font-medium text-white underline bg-transparent border-none cursor-pointer"> الشكاوي والمقترحات</button></li>
+              <li><button className="text-base font-medium text-white underline bg-transparent border-none cursor-pointer"> الاسئلة الشائعة</button></li>
               {/* <li><a href="#" className="text-base font-medium text-white underline">حساب و سداد رسوم الموقع</a></li> */}
             </ul>
             <div className="mt-[50px] text-center text-white text-sm">
