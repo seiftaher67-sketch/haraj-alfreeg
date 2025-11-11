@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { NotificationsProvider } from './context/NotificationsContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LoginModal from './components/auth/LoginModal';
@@ -40,11 +41,12 @@ function App() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-gray-50 text-right">
-        <Navbar onLoginClick={() => setIsLoginModalOpen(true)} />
-        <main className="flex-grow">
+    <NotificationsProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <div className="min-h-screen flex flex-col bg-gray-50 text-right">
+          <Navbar onLoginClick={() => setIsLoginModalOpen(true)} />
+          <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
            
@@ -74,7 +76,7 @@ function App() {
               <Route path="support" element={<Support />} />
               <Route path="contact" element={<Support />} />
               <Route path="complaints" element={<Support />} />
-              <Route path="legal" element={<LegalInfo />} />
+              <Route path="legal" element={<TermsAndConditions />} />
               <Route path="logout" element={<Logout />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="change-password" element={<ChangePassword />} />
@@ -100,6 +102,7 @@ function App() {
         />
       </div>
     </BrowserRouter>
+    </NotificationsProvider>
   );
 }
 

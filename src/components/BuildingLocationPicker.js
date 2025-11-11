@@ -60,7 +60,7 @@ const BuildingLocationPicker = ({ onLocationSelect }) => {
   return (
     <div className="space-y-4 bg-white p-4 rounded-xl shadow-md h-100">
       <h2 className="text-lg font-semibold text-gray-800 mb-2">
-        📍 حدد الموقع 
+         حدد الموقع 
       </h2>
 
       {/* خريطة OpenStreetMap */}

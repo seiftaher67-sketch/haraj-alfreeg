@@ -1,3 +1,4 @@
-# TODO List for Increasing Points in AccountPayments Page
-
-- [x] Change balance.total from 1500 to 1600 in src/pages/profile/AccountPayments.js
+- [ ] Create NotificationsContext.js for global notifications state
+- [ ] Update App.js to provide the context
+- [ ] Update Notifications.js to use the context
+- [ ] Update ProfileHome.js to display unread count badge

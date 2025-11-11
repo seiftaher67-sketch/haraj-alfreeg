@@ -5,22 +5,20 @@ import {
   Wallet,
   History,
   Settings,
-  HelpCircle,
   FileText,
   LogOut,
   ChevronDown,
   Lock,
   Bell,
-  Phone,
-  MessageSquare,
   User,
   MapPin,
 } from "lucide-react";
+import { useNotifications } from "../../context/NotificationsContext";
 
 const ProfileHome = () => {
   const location = useLocation();
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
-  const [isSupportExpanded, setIsSupportExpanded] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const subMenuItems = [
     {
@@ -38,52 +36,19 @@ const ProfileHome = () => {
       label: "تغيير كلمة المرور",
       icon: <Lock className="w-4 h-4" />,
     },
-    {
-      path: "notifications",
-      label: "الإشعارات",
-      icon: <Bell className="w-4 h-4" />,
-    },
-  ];
-
-  const supportSubMenuItems = [
-    {
-      path: "support",
-      label: "مركز المساعدة",
-      icon: <HelpCircle className="w-4 h-4" />,
-    },
-    {
-      path: "contact",
-      label: "اتصل بنا",
-      icon: <Phone className="w-4 h-4" />,
-    },
-    {
-      path: "complaints",
-      label: "الشكاوى والاقتراحات",
-      icon: <MessageSquare className="w-4 h-4" />,
-    },
   ];
 
   useEffect(() => {
     if (location.pathname.startsWith('/profile/settings') ||
         location.pathname.startsWith('/profile/change-password') ||
-        location.pathname.startsWith('/profile/notifications') ||
         location.pathname.startsWith('/profile/profile-edit') ||
         location.pathname.startsWith('/profile/location')) {
       setIsSettingsExpanded(true);
     }
-    if (location.pathname.startsWith('/profile/support') ||
-        location.pathname.startsWith('/profile/contact') ||
-        location.pathname.startsWith('/profile/complaints')) {
-      setIsSupportExpanded(true);
-    }
   }, [location.pathname]);
 
   const menuItems = [
-    {
-      path: "dashboard",
-      label: "لوحة التحكم",
-      icon: <Settings className="w-5 h-5" />,
-    },
+
     {
       path: "account-payments",
       label: "الحساب والدفع",
@@ -100,14 +65,14 @@ const ProfileHome = () => {
       icon: <History className="w-5 h-5" />,
     },
     {
+      path: "notifications",
+      label: "الإشعارات",
+      icon: <Bell className="w-5 h-5" />,
+    },
+    {
       path: "settings",
       label: "الإعدادات",
       icon: <Settings className="w-5 h-5" />,
-    },
-    {
-      path: "support",
-      label: "الدعم والمساعدة",
-      icon: <HelpCircle className="w-5 h-5" />,
     },
     {
       path: "legal",
@@ -133,7 +98,6 @@ const ProfileHome = () => {
               if (item.path === "settings") {
                 const isSettingsActive = location.pathname.startsWith('/profile/settings') ||
                   location.pathname.startsWith('/profile/change-password') ||
-                  location.pathname.startsWith('/profile/notifications') ||
                   location.pathname.startsWith('/profile/profile-edit') ||
                   location.pathname.startsWith('/profile/location');
                 return (
@@ -173,47 +137,6 @@ const ProfileHome = () => {
                   </div>
                 );
               }
-              if (item.path === "support") {
-                const isSupportActive = location.pathname.startsWith('/profile/support') ||
-                  location.pathname.startsWith('/profile/contact') ||
-                  location.pathname.startsWith('/profile/complaints');
-                return (
-                  <div key={item.path}>
-                    <button
-                      onClick={() => setIsSupportExpanded(!isSupportExpanded)}
-                      className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-colors duration-200 ${
-                        isSupportActive
-                          ? "bg-[#0b0b0b] text-white border-r-4 border-[#0b0b0b]"
-                          : "text-[#0b0b0b] hover:bg-[#0b0b0b]/10 hover:text-[#0b0b0b]"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3 space-x-reverse">
-                        {item.icon}
-                        <span className="text-sm font-medium text-right">{item.label}</span>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSupportExpanded ? 'rotate-180' : ''}`} />
-                    </button>
-                    {isSupportExpanded && (
-                      <div className="ml-6 mt-2 space-y-1">
-                        {supportSubMenuItems.map((subItem) => (
-                          <Link
-                            key={subItem.path}
-                            to={subItem.path}
-                            className={`flex items-center space-x-2 space-x-reverse px-3 py-2 rounded-lg transition-colors duration-200 ${
-                              location.pathname === `/profile/${subItem.path}`
-                                ? "bg-[#0b0b0b] text-white"
-                                : "text-[#0b0b0b] hover:bg-[#0b0b0b]/10 hover:text-[#0b0b0b]"
-                            }`}
-                          >
-                            {subItem.icon}
-                            <span className="text-xs font-medium text-right">{subItem.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
               return (
                 <Link
                   key={item.path}
@@ -224,8 +147,15 @@ const ProfileHome = () => {
                       : "text-[#0b0b0b] hover:bg-[#0b0b0b]/10 hover:text-[#0b0b0b]"
                   }`}
                 >
-                  {item.icon}
-                  <span className="text-sm font-medium text-right">{item.label}</span>
+                  <div className="flex items-center space-x-2 space-x-reverse">
+                    {item.icon}
+                    <span className="text-sm font-medium text-right">{item.label}</span>
+                    {item.path === "notifications" && unreadCount > 0 && (
+                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
                 </Link>
               );
             })}
@@ -233,17 +163,17 @@ const ProfileHome = () => {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <Link
               to="logout"
-              className="flex items-center justify-end space-x-3 space-x-reverse px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors duration-200"
+              className="flex items-center justify-center space-x-3 space-x-reverse px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors duration-200"
             >
               <LogOut className="w-5 h-5" />
-              <span className="text-sm font-medium">تسجيل الخروج</span>
+              <span className="text-sm font-bold">تسجيل الخروج</span>
             </Link>
           </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 ml-64 overflow-y-auto">
+      <div className="flex-1 ml-14 overflow-y-auto">
         <Outlet />
       </div>
     </div>
