@@ -32,6 +32,8 @@ import ChangePassword from './pages/profile/settings/ChangePassword';
 import ProfileEdit from './pages/profile/settings/ProfileEdit';
 import Location from './pages/profile/settings/Location';
 import TermsAndConditions from './pages/TermsAndConditions';
+import Complaints from './pages/Complaints';
+import FAQ from './pages/FAQ';
 
 function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -58,6 +60,8 @@ function App() {
             <Route path="/live-broadcast" element={<LiveBroadcast />} />
             <Route path="/login" element={<Login />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/complaints" element={<Complaints />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/profile" element={<ProfileHome />}>
               <Route index element={<ProfileDashboard />} />
               <Route path="dashboard" element={<ProfileDashboard />} />

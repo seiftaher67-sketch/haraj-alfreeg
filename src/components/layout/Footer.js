@@ -31,12 +31,12 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-center">الدعم الفني</h4>
             <ul className="space-y-3 text-center">
               <li><a href="/terms-and-conditions" className="text-base font-medium text-white underline"> الشروط والاحكام</a></li>
-              <li><button className="text-base font-medium text-white underline bg-transparent border-none cursor-pointer"> الشكاوي والمقترحات</button></li>
-              <li><button className="text-base font-medium text-white underline bg-transparent border-none cursor-pointer"> الاسئلة الشائعة</button></li>
+              <li><a href="/complaints" className="text-base font-medium text-white underline"> الشكاوي والمقترحات</a></li>
+              <li><a href="/faq" className="text-base font-medium text-white underline"> الاسئلة الشائعة</a></li>
               {/* <li><a href="#" className="text-base font-medium text-white underline">حساب و سداد رسوم الموقع</a></li> */}
             </ul>
             <div className="mt-[50px] text-center text-white text-sm">
-              © ELFouriaj Group NO.0.1 , 2025-10-13
+              © ELFouriaj Group NO.0.1 , 2024-10-13
               <div className="mt-2">الرقم الضريبي 300710482300003</div>
             </div>
           </div>
@@ -67,7 +67,7 @@ const Footer = () => {
         {/* Atlas image below the line, extreme left */}
         <div className="flex justify-start mt-4 items-center">
           <img src="/atlas.png" alt="atlas" className="h-10 w-10" />
-          <span className="text-white/50 text-xs mr-2">حقوق النشر 2025-2026 أطلس البيانات. جميع الحقوق محفوظة</span>
+          <span className="text-white/50 text-xs mr-2">حقوق النشر 2024-2025 أطلس البيانات. جميع الحقوق محفوظة</span>
         </div>
 
       </div>

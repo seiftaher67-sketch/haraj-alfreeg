@@ -11,6 +11,8 @@ import l5 from "../styles/l5.png";
 import l6 from "../styles/l6.png";
 import l7 from "../styles/l7.png";
 import l8 from "../styles/l8.png";
+import Group1 from "../assets/Group 1.png";
+import Group2 from "../assets/Group 2.png";
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -279,16 +281,15 @@ function Home() {
 
       {/* USER TYPES - Figma style with decorations */}
       <section className="relative py-20 bg-white overflow-hidden">
-        {/* decorative images (placed in public/assets/images/images/) */}
+        {/* decorative images (placed in src/assets/) */}
         <img
-          src="/assets/images/images/Group 2 (1).png"
+          src={Group1}
           alt="decor-left"
           className="block absolute -left-6 lg:-left-12 top-1/4 -translate-y-1/4 w-60 lg:w-96 pointer-events-none"
-          style={{ transform: "scaleX(-1)" }}
         />
 
         <img
-          src="/assets/images/images/Group 2 (1) copy.png"
+          src={Group2}
           alt="decor-right"
           className="block absolute -right-6 lg:-right-12 top-1/2 -translate-y-1/2 w-60 lg:w-96 pointer-events-none"
         />
