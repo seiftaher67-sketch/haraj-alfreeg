@@ -1,9 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const TermsAndConditions = () => {
+  const navigate = useNavigate();
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 py-0 px-6">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
+        <div className="text-left mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-black mb-4">📜 الشروط والأحكام</h1>
         </div>
