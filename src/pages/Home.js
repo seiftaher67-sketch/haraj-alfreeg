@@ -66,7 +66,7 @@ function Home() {
 
   const filteredVehicles = vehicles;
 
-  const nextSlide = useCallback(() => setCurrentSlide((p) => (p + 1) % slides.length), []);
+  const nextSlide = useCallback(() => setCurrentSlide((p) => (p + 1) % slides.length), [slides.length]);
 
   const toggleCategory = (category) => {
     setSelectedCategories((prev) =>
