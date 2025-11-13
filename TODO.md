@@ -1,4 +1,3 @@
-- [ ] Create NotificationsContext.js for global notifications state
-- [ ] Update App.js to provide the context
-- [ ] Update Notifications.js to use the context
-- [ ] Update ProfileHome.js to display unread count badge
+- [x] Change sidebar background in ProfileHome.js from bg-[#f2b400] to gray gradient (bg-gradient-to-b from-gray-100 to-gray-300)
+- [x] Change sidebar background to black, adjust text colors to white/light gray, and update button colors to yellow (#f2b400) for active/hover states
+- [x] Remove "الشروط والأحكام" (Terms and Conditions) item from the sidebar menu in ProfileHome.js
