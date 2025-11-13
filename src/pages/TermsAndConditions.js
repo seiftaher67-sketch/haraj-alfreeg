@@ -98,7 +98,7 @@ const TermsAndConditions = () => {
             </ul>
 
             <h3 className="text-lg font-bold mb-2" style={{color: '#FF8C00'}}> تحديد المسئولية</h3>
-            <ul className="list-disc list-inside text-black leading-relaxed">
+            <ol className="list-decimal list-inside text-black leading-relaxed">
               <li>يقدم تطبيق حراج الفريج خدمة تمكين المستخدم من عرض سلعته ونشر المحتوى وفق سياسة الاستخدام المتفق عليها، ولا تقدم تطبيق أي ضمانات ولا تتحمل أي مسؤولية في حالة عدم التزام المستخدم أو المستهلك بها.</li>
               <li>يخلي تطبيق حراج الفريج مسؤوليته من أي مخاطرة أو أضرار أو تبعات أو خسائر تقع على البائع أو المشتري أو أي طرف آخر. وعلى من لحق به الضرر زيارة رابط الاتصال بنا وشرح الضرر الواقع عليه وستقوم حراج الفريج باتخاذ الإجراء حسب نوع الواقعة دون أدنى مسؤولية.</li>
               <li>باستخدام تطبيق حراج الفريج يعني أنك قد تحصل على المسؤولية في اتباع جميع القوانين واللوائح، والأنظمة ذات العلاقة باستخدام التطبيق، كما تتحمل مسؤولية الشراء وعمليات التسليم في حال كان الحساب محل الكتروني.</li>
@@ -111,27 +111,54 @@ const TermsAndConditions = () => {
               <li>في حال تم القيام بأي نشاط غير قانوني أو غير نظامي فإن تطبيق حراج الفريج يخلي مسؤوليته في جميع ما سبق.</li>
               <li>تعتبر تعاميم وقرارات وتوجيهات إدارة ومشرفي الموقع ملزمة للطرف الثاني بعد إيصالها له عبر الرسائل الخاصة بالموقع أو الجوال أو البريد الإلكتروني أو عبر نظام الإشعارات، وعليه الالتزام بها والعمل بموجبها.</li>
               <li>باستخدامك لتطبيق حراج الفريج فإنك تقر بأحقية تطبيق حراج الفريج في حال مخالفتك للأنظمة والقوانين المتبعة في المملكة أو لسياسات وقوانين منصة حراج فإن لمؤسسة موقع حراج الحق بالرجوع عليك بكافة الأضرار والخسائر وتحميك أتعاب المحاماة في جميع المسائل والقضايا المتعلقة بمخالفتك وتلتزم بالتعويض عنها وان تطبيق حراج يخلي مسوؤلية عن الحوالات داخل التطبيق. ويجب على المشتري ان يقوم بالشراء في مكان عام واظهار جميع بيانات البائع فان تطبيق حراج الفريج يخلي مسوؤليته عن جميع ما سبق.</li>
-            </ul>
+            </ol>
 
-            <h3 className="text-lg font-bold mb-2" style={{color: '#f2b400'}}>الضريبة</h3>
+            <h3 className="text-lg font-bold mb-2" style={{color: '#FF8C00'}}>الضريبة</h3>
             <ul className="list-disc list-inside text-black leading-relaxed">
-              <li>ما يخص ضريبة القيمة المضافة 15 تحسب عمولة السعي من عقد البيع.</li>
+              <li>ما يخص ضريبة القيمة المضافة: 15%</li>
+              <li>تحسب عمولة السعي من عقد البيع.</li>
             </ul>
 
-            <h3 className="text-lg font-bold mb-2" style={{color: '#f2b400'}}>قنوات السداد</h3>
+            <h3 className="text-lg font-bold mb-2" style={{color: '#FF8C00'}}>قنوات السداد</h3>
             <ul className="list-disc list-inside text-black leading-relaxed">
               <li>يتم سداد الرسوم عن طريق الحوالة البنكية على أي من الحسابات التالية:</li>
             </ul>
 
-            <h3 className="text-lg font-bold mb-2" style={{color: '#f2b400'}}>أسم البنك و أرقام الحسابات</h3>
-            <div className="text-right text-black leading-relaxed mb-4">
-              <p>2966080109993 50 / الراجحي</p>
-              <p>Sa8380000296608010999350 / الراجحي / أيبان</p>
-              <p>21649758000109 / الأهلي</p>
-              <p>2361419469940 / الرياض</p>
-              <p>4221158130400 04 / السلام</p>
-              <p>6820057019200 / الانماء</p>
-            </div>
+            <h3 className="text-lg font-bold mb-2" style={{color: '#FF8C00'}}>أسم البنك و أرقام الحسابات</h3>
+            <table className="w-full table-auto border-collapse border border-gray-300 mb-4">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-gray-300 px-4 py-2 text-right font-bold">اسم البنك</th>
+                  <th className="border border-gray-300 px-4 py-2 text-right font-bold">رقم الحساب / IBAN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2 text-right">الراجحي</td>
+                  <td className="border border-gray-300 px-4 py-2 text-right">2966080109993 50</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2 text-right">الراجحي</td>
+                  <td className="border border-gray-300 px-4 py-2 text-right">Sa8380000296608010999350 (أيبان)</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2 text-right">الأهلي</td>
+                  <td className="border border-gray-300 px-4 py-2 text-right">21649758000109</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2 text-right">الرياض</td>
+                  <td className="border border-gray-300 px-4 py-2 text-right">2361419469940</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2 text-right">السلام</td>
+                  <td className="border border-gray-300 px-4 py-2 text-right">4221158130400 04</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2 text-right">الانماء</td>
+                  <td className="border border-gray-300 px-4 py-2 text-right">6820057019200</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
