@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { PhotoIcon, DocumentIcon, XMarkIcon, CloudArrowUpIcon } from "@heroicons/react/24/outline";
-import { useMutation } from '@tanstack/react-query';
-import { listingAPI } from '../services/api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { listingAPI, modelAPI } from '../services/api';
 
 export default function Advertisement() {
   const [form, setForm] = useState({
@@ -52,6 +52,29 @@ export default function Advertisement() {
   const imageInputRef = useRef(null);
   const pdfInputRef = useRef(null);
   const videoInputRef = useRef(null);
+
+  // Fetch models
+  const { data: modelsData, isLoading: modelsLoading } = useQuery({
+    queryKey: ['models'],
+    queryFn: modelAPI.getModels,
+  });
+
+  // State for models (persistent in localStorage)
+  const [models, setModels] = useState([]);
+
+  // Load models from localStorage and update with API data
+  useEffect(() => {
+    const storedModels = localStorage.getItem('truckModels');
+    if (storedModels) {
+      setModels(JSON.parse(storedModels));
+    }
+
+    if (modelsData?.data) {
+      const apiModels = modelsData.data;
+      setModels(apiModels);
+      localStorage.setItem('truckModels', JSON.stringify(apiModels));
+    }
+  }, [modelsData]);
 
   const handleFileRemove = (type, index) => {
     setForm((prev) => ({
@@ -519,7 +542,11 @@ export default function Advertisement() {
               className="mt-1 w-full p-3 border rounded-lg"
             >
               <option value="">اختر الموديل</option>
-              {/* Models will be populated from dashboard */}
+              {models.map((model) => (
+                <option key={model.id} value={model.model_name}>
+                  {model.truck_name} - {model.model_name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -780,7 +807,6 @@ export default function Advertisement() {
               className="mt-1 w-full p-3 border rounded-lg"
               placeholder="أدخل ماركة علبة السرعات"
             />
-           
           </div>
         </div>
 
