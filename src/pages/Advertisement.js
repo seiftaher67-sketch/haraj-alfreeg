@@ -171,6 +171,30 @@ export default function Advertisement() {
     } else setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  const isFormValid = () => {
+    return (
+      form.title.trim() !== '' &&
+      form.category !== '' &&
+      form.city !== '' &&
+      form.model !== '' &&
+      form.serial.trim() !== '' &&
+      form.kilometers.trim() !== '' &&
+      form.cabin !== '' &&
+      form.type !== '' &&
+      form.price.trim() !== '' &&
+      form.length.trim() !== '' &&
+      form.width.trim() !== '' &&
+      form.height.trim() !== '' &&
+      form.engine.trim() !== '' &&
+      form.transmission !== '' &&
+      form.gearboxBrand.trim() !== '' &&
+      form.fuel !== '' &&
+      form.lights.trim() !== '' &&
+      form.color.trim() !== '' &&
+      form.image.length > 0
+    );
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
 
@@ -952,7 +976,7 @@ export default function Advertisement() {
         <div className="flex justify-center mt-8">
           <button
             type="submit"
-            disabled={createListingMutation.isPending}
+            disabled={!isFormValid() || createListingMutation.isPending}
             className="bg-[#f2b400] text-white px-8 py-3 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {createListingMutation.isPending ? 'جاري الإضافة...' : 'إضافة'}

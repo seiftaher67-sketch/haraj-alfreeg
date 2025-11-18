@@ -13,6 +13,7 @@ import l7 from "../styles/l7.png";
 import l8 from "../styles/l8.png";
 import Group1 from "../assets/Group 1.png";
 import Group2 from "../assets/Group 2.png";
+import { bannerAPI } from "../services/api";
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -20,23 +21,8 @@ function Home() {
   const [selectedCards, setSelectedCards] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const slides = [
-    {
-      image: "/assets/images/images/Property 1=P1.png",
-      title: "",
-      subtitle: "",
-    },
-    {
-      image: "/assets/images/images/Property 1=P2.png",
-      title: "",
-      subtitle: "",
-    },
-    {
-      image: "/assets/images/images/Property 1=P3.png",
-      title: "",
-      subtitle: "",
-    },
-  ];
+  const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(true);
   const images = [
     l1,
     l2,
@@ -87,9 +73,33 @@ function Home() {
   };
 
   useEffect(() => {
-    const t = setInterval(nextSlide, 5000);
-    return () => clearInterval(t);
-  }, [nextSlide]);
+    const fetchBanners = async () => {
+      try {
+        const banners = await bannerAPI.getBanners();
+        const formattedSlides = banners.map(banner => ({
+          image: banner.image_path,
+          title: banner.title,
+          subtitle: "",
+        }));
+        setSlides(formattedSlides);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+        // No fallback slides - only show banners from backend
+        setSlides([]);
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  useEffect(() => {
+    if (slides.length > 0) {
+      const t = setInterval(nextSlide, 5000);
+      return () => clearInterval(t);
+    }
+  }, [nextSlide, slides.length]);
 
 
 
@@ -337,10 +347,13 @@ function Home() {
                     </li>
                   ))}
                 </ul>
-
-                <button className="mt-auto inline-block w-48 mx-auto bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] font-medium py-3 rounded-lg shadow">
-                  الدخول مجانا
-                </button>
+              
+                <Link to="/categories">
+                  <button className="flex items-center justify-center mt-12 w-56 mx-auto bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] font-medium py-3 rounded-lg shadow">
+                    الدخول مجانا
+                  </button>
+                </Link>
+              
               </div>
             </div>
 
@@ -402,9 +415,11 @@ function Home() {
                   />
                 </div>
 
-                <button className=" flex items-center justify-center mt-2  w-56 mx-auto bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] font-medium py-3 rounded-lg shadow ">
-                  بدأ التزايد الآن
-                </button>
+                <Link to="/auctions">
+                  <button className=" flex items-center justify-center mt-2  w-56 mx-auto bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] font-medium py-3 rounded-lg shadow ">
+                    بدأ التزايد الآن
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -566,9 +581,11 @@ function Home() {
             </div>
 
             <div className="flex justify-center mt-6">
-              <button className="bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] py-3 px-8 rounded-lg font-medium shadow">
-                تسجيل في المزايده
-              </button>
+              <Link to="/payment">
+                <button className="bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] py-3 px-8 rounded-lg font-medium shadow">
+                  تسجيل في المزايده
+                </button>
+              </Link>
             </div>
           </div>
         </div>

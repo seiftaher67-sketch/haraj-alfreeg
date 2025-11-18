@@ -66,7 +66,9 @@ const Footer = () => {
 
         {/* Atlas image below the line, extreme left */}
         <div className="flex justify-start mt-4 items-center">
-          <img src="/atlas.png" alt="atlas" className="h-10 w-10" />
+          <a href="https://atlas-data.sa/" target="_blank" rel="noopener noreferrer">
+            <img src="/atlas.png" alt="atlas" className="h-10 w-10" />
+          </a>
           <span className="text-white/50 text-xs mr-2">حقوق النشر 2024-2025 أطلس البيانات. جميع الحقوق محفوظة</span>
         </div>
 

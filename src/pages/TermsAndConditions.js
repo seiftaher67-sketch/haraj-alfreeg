@@ -149,14 +149,7 @@ const TermsAndConditions = () => {
                   <td className="border border-gray-300 px-4 py-2 text-right">الرياض</td>
                   <td className="border border-gray-300 px-4 py-2 text-right">2361419469940</td>
                 </tr>
-                <tr>
-                  <td className="border border-gray-300 px-4 py-2 text-right">السلام</td>
-                  <td className="border border-gray-300 px-4 py-2 text-right">4221158130400 04</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 px-4 py-2 text-right">الانماء</td>
-                  <td className="border border-gray-300 px-4 py-2 text-right">6820057019200</td>
-                </tr>
+               
               </tbody>
             </table>
           </div>
