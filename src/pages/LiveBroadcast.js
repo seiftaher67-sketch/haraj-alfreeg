@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function LiveBroadcast() {
+  const navigate = useNavigate();
+
   const liveVideos = [
     {
       id: 1,
@@ -100,8 +103,11 @@ function LiveBroadcast() {
                 <div className="p-6">
                   <h3 className="text-xl font-bold mb-2">{video.title}</h3>
                   <p className="text-gray-600 mb-4">{video.description}</p>
-                  <button className="w-full bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] py-3 px-6 rounded-lg font-medium shadow hover:shadow-lg transition-all duration-200">
-                     مشاهده البث المباشر 
+                  <button
+                    onClick={() => navigate(`/live-broadcast/${video.id}`)}
+                    className="w-full bg-[#f2b400] hover:bg-[#d19b00] text-[#0b0b0b] py-3 px-6 rounded-lg font-medium shadow hover:shadow-lg transition-all duration-200"
+                  >
+                     مشاهده البث المباشر
                   </button>
                 </div>
               </div>

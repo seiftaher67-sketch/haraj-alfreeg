@@ -5,7 +5,6 @@ import {
   Wallet,
   History,
   Settings,
-  FileText,
   LogOut,
   ChevronDown,
   Lock,
@@ -44,7 +43,6 @@ const ProfileHome = () => {
     { path: "bid-history", label: "تاريخ المزايدات", icon: <History className="w-5 h-5" /> },
     { path: "notifications", label: "الإشعارات", icon: <Bell className="w-5 h-5" /> },
     { path: "settings", label: "الإعدادات", icon: <Settings className="w-5 h-5" /> },
-    { path: "legal", label: "الشروط والأحكام", icon: <FileText className="w-5 h-5" /> },
   ];
 
   // لما يضغط المستخدم على أي قائمة على الموبايل → نعرض الصفحة ونخفي القوائم
@@ -56,7 +54,7 @@ const ProfileHome = () => {
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div
-        className={`fixed lg:static top-[70px] right-0 w-full lg:w-56 bg-[#f2b400] h-[calc(100vh-70px)] lg:h-auto border-l border-gray-200 z-30 p-6 transition-all duration-300 overflow-y-auto scroll-smooth ${
+        className={`fixed lg:static top-[70px] right-0 w-full lg:w-56 bg-black h-[calc(100vh-70px)] lg:h-auto border-l border-gray-200 z-30 p-6 transition-all duration-300 overflow-y-auto scroll-smooth ${
           showMenu ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         }`}
       >
@@ -83,8 +81,8 @@ const ProfileHome = () => {
                     onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
                     className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-colors duration-200 ${
                       isSettingsActive
-                        ? "bg-[#0b0b0b] text-white border-r-4 border-[#0b0b0b]"
-                        : "text-[#0b0b0b] hover:bg-[#0b0b0b]/10 hover:text-[#0b0b0b]"
+                        ? "bg-[#f2b400] text-black border-r-4 border-[#f2b400]"
+                        : "text-gray-300 hover:bg-[#f2b400]/20 hover:text-white"
                     }`}
                   >
                     <div className="flex items-center space-x-3 space-x-reverse">
@@ -106,8 +104,8 @@ const ProfileHome = () => {
                           onClick={handleMenuClick}
                           className={`flex items-center space-x-2 space-x-reverse px-3 py-2 rounded-lg transition-colors duration-200 ${
                             location.pathname === `/profile/${subItem.path}`
-                              ? "bg-[#0b0b0b] text-white"
-                              : "text-[#0b0b0b] hover:bg-[#0b0b0b]/10 hover:text-[#0b0b0b]"
+                              ? "bg-[#f2b400] text-black"
+                              : "text-gray-300 hover:bg-[#f2b400]/20 hover:text-white"
                           }`}
                         >
                           {subItem.icon}
@@ -127,8 +125,8 @@ const ProfileHome = () => {
                 onClick={handleMenuClick}
                 className={`flex items-center justify-start space-x-3 space-x-reverse px-4 py-3 rounded-lg transition-colors duration-200 ${
                   location.pathname === `/profile/${item.path}`
-                    ? "bg-[#0b0b0b] text-white border-r-4 border-[#0b0b0b]"
-                    : "text-[#0b0b0b] hover:bg-[#0b0b0b]/10 hover:text-[#0b0b0b]"
+                    ? "bg-[#f2b400] text-black border-r-4 border-[#f2b400]"
+                    : "text-gray-300 hover:bg-[#f2b400]/20 hover:text-white"
                 }`}
               >
                 <div className="flex items-center space-x-2 space-x-reverse">
@@ -148,6 +146,7 @@ const ProfileHome = () => {
         <div className="mt-8 pt-8 border-t border-gray-200">
           <Link
             to="logout"
+            onClick={handleMenuClick}
             className="flex items-center justify-center space-x-3 space-x-reverse px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors duration-200"
           >
             <LogOut className="w-5 h-5" />

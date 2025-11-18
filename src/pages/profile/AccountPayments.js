@@ -1,19 +1,20 @@
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { walletAPI } from "../../services/api";
 
 const AccountPayments = () => {
-  const balance = {
-    total: 1500,
-    main: 1200,
-    deposit: 300,
-  };
+  const { data: walletData, isLoading: isLoadingWallet, isError: isErrorWallet } = useQuery({
+    queryKey: ["wallet"],
+    queryFn: walletAPI.getWallet,
+  });
 
-  const transactions = [
-    { id: 1, type: "إيداع", amount: 500, date: "2023-10-01", status: "payments" },
-    { id: 2, type: "سحب", amount: -200, date: "2023-10-02", status: "refunds" },
-    { id: 3, type: "مزايدة", amount: -100, date: "2023-10-03", status: "rejected" },
-    { id: 4, type: "إيداع", amount: 300, date: "2023-10-04", status: "payments" },
-    { id: 5, type: "مرفوض", amount: 0, date: "2023-10-05", status: "rejected" },
-  ];
+  const { data: transactionsData, isLoading: isLoadingTransactions, isError: isErrorTransactions } = useQuery({
+    queryKey: ["transactions"],
+    queryFn: walletAPI.getTransactions,
+  });
+
+  const balance = walletData || { balance_sar: 0, balance_points: 0 };
+  const transactions = transactionsData?.transactions?.data || [];
 
   const [activeFilter, setActiveFilter] = useState("all");
 
@@ -34,11 +35,28 @@ const AccountPayments = () => {
 
       <div className="mb-8">
         <div className="bg-gradient-to-r from-black to-gray-800 shadow-lg rounded-br-3xl rounded-tl-3xl p-6 border border-black hover:shadow-xl transition-shadow">
-          <h2 className="text-lg font-bold text-white text-right -mt-2">إ جمالى رصيد المحفظه</h2>
-          <div className="flex justify-between items-center mt-4 mr-7">
-            <p className="text-lg font-bold text-white"><span className="bg-gradient-to-r from-yellow-300 to-yellow-600 bg-clip-text text-transparent font-bold text-lg drop-shadow-lg">{balance.total}</span> ر.س</p>
-            <p className="text-lg font-bold text-white -mt-5">عدد النقاط: <span className="bg-gradient-to-r from-yellow-300 to-yellow-600 bg-clip-text text-transparent font-bold text-lg drop-shadow-lg">{balance.total}</span> نقطة</p>
-          </div>
+          <h2 className="text-lg font-bold text-white text-right -mt-2">إجمالي رصيد المحفظة</h2>
+          {isLoadingWallet ? (
+            <p className="text-white text-center mt-4">جاري تحميل الرصيد...</p>
+          ) : isErrorWallet ? (
+            <p className="text-red-500 text-center mt-4">خطأ في تحميل الرصيد.</p>
+          ) : (
+            <div className="flex justify-between items-center mt-4 mr-7">
+              <p className="text-lg font-bold text-white">
+                <span className="bg-gradient-to-r from-yellow-300 to-yellow-600 bg-clip-text text-transparent font-bold text-lg drop-shadow-lg">
+                  {balance.balance_sar}
+                </span>{" "}
+                ر.س
+              </p>
+              <p className="text-lg font-bold text-white -mt-5">
+                عدد النقاط:{" "}
+                <span className="bg-gradient-to-r from-yellow-300 to-yellow-600 bg-clip-text text-transparent font-bold text-lg drop-shadow-lg">
+                  {balance.balance_points}
+                </span>{" "}
+                نقطة
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -63,28 +81,36 @@ const AccountPayments = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-right py-3 text-gray-600 font-semibold">التاريخ</th>
-                <th className="text-right py-3 text-gray-600 font-semibold">النوع</th>
-                <th className="text-right py-3 text-gray-600 font-semibold">المبلغ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((transaction) => (
-                <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-3 text-gray-800">{transaction.date}</td>
-                  <td className="py-3 text-gray-800">{transaction.type}</td>
-                  <td className={`py-3 font-medium ${
-                    transaction.amount > 0 ? 'text-green-600' : transaction.amount < 0 ? 'text-red-600' : 'text-gray-600'
-                  }`}>
-                    {transaction.amount > 0 ? '+' : ''}{transaction.amount} نقطة
-                  </td>
+          {isLoadingTransactions ? (
+            <p className="text-center text-gray-600">جاري تحميل العمليات...</p>
+          ) : isErrorTransactions ? (
+            <p className="text-red-500 text-center">خطأ في تحميل العمليات.</p>
+          ) : filteredTransactions.length === 0 ? (
+            <p className="text-center text-gray-600">لا توجد عمليات لعرضها.</p>
+          ) : (
+            <table className="w-full table-auto">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-right py-3 text-gray-600 font-semibold">التاريخ</th>
+                  <th className="text-right py-3 text-gray-600 font-semibold">النوع</th>
+                  <th className="text-right py-3 text-gray-600 font-semibold">المبلغ (نقطة)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredTransactions.map((transaction) => (
+                  <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-3 text-gray-800">{new Date(transaction.created_at).toLocaleDateString('ar-EG')}</td>
+                    <td className="py-3 text-gray-800">{transaction.type}</td>
+                    <td className={`py-3 font-medium ${
+                      transaction.amount > 0 ? 'text-green-600' : transaction.amount < 0 ? 'text-red-600' : 'text-gray-600'
+                    }`}>
+                      {transaction.amount > 0 ? '+' : ''}{Math.round(transaction.amount / 500)} نقطة
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

@@ -262,8 +262,8 @@ function Home() {
               ...filteredVehicles,
               ...filteredVehicles,
               ...filteredVehicles,
-            ].map((vehicle) => (
-              <AuctionCard key={vehicle.id} auction={vehicle} />
+            ].map((vehicle, index) => (
+              <AuctionCard key={`${vehicle.id}-${index}`} auction={vehicle} />
             ))}
           </div>
 
@@ -503,9 +503,9 @@ function Home() {
               ...filteredVehicles,
               ...filteredVehicles,
               ...filteredVehicles,
-            ].map((v) => (
+            ].map((v, index) => (
               <div
-                key={v.id}
+                key={`${v.id}-${index}`}
                 onClick={() => toggleCardSelection(v.id)}
                 className={`cursor-pointer transition-all ${
                   selectedCards.includes(v.id)

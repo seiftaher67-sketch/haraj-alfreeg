@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { userAPI } from '../services/api';
 
 const NotificationsContext = createContext();
 
@@ -11,60 +13,47 @@ export const useNotifications = () => {
 };
 
 export const NotificationsProvider = ({ children }) => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "تم قبول مزايدتك",
-      message: "تم قبول مزايدتك على سيارة تويوتا كورولا 2020",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      read: false,
-      type: "bid"
+  const queryClient = useQueryClient();
+
+  // Fetch notifications from API
+  const { data: notificationsData, isLoading } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: userAPI.getNotifications,
+    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 10000, // Consider data fresh for 10 seconds
+  });
+
+  const notifications = notificationsData || [];
+
+  // Mark notification as read mutation
+  const markAsReadMutation = useMutation({
+    mutationFn: userAPI.markNotificationAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
-    {
-      id: 2,
-      title: "مزايدة جديدة متاحة",
-      message: "تم إضافة مزايدة جديدة على سيارة هوندا سيفيك",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      read: false,
-      type: "auction"
+  });
+
+  // Mark all notifications as read mutation
+  const markAllAsReadMutation = useMutation({
+    mutationFn: userAPI.markAllNotificationsAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
-    {
-      id: 3,
-      title: "انتهت المزايدة",
-      message: "انتهت مزايدة سيارة نيسان التي كنت تشارك فيها",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      read: true,
-      type: "ended"
-    },
-    {
-      id: 4,
-      title: "تحديث في حسابك",
-      message: "تم تحديث معلومات حسابك بنجاح",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-      read: true,
-      type: "account"
-    }
-  ]);
+  });
 
   const markAsRead = (id) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
+    markAsReadMutation.mutate(id);
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+    markAllAsReadMutation.mutate();
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const value = {
     notifications,
-    setNotifications,
+    isLoading,
     markAsRead,
     markAllAsRead,
     unreadCount

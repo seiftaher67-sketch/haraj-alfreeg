@@ -1,7 +1,70 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useQuery } from '@tanstack/react-query';
+import { userAPI } from '../../services/api';
 
 export default function Navbar({ onLoginClick }) {
+  const [user, setUser] = useState(null);
+
+  // Fetch user profile data from API
+  const { data: profileData, refetch: refetchProfile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: userAPI.getProfile,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    onSuccess: (data) => {
+      if (data.user) {
+        setUser(data.user);
+        // Update localStorage with latest data
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+    },
+    enabled: !!localStorage.getItem('token'), // Only fetch if user is logged in
+  });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    // Listen for user updates (when profile is updated)
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem('user');
+      if (updatedUser) {
+        setUser(JSON.parse(updatedUser));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Custom event for same-tab updates
+    window.addEventListener('userUpdated', () => {
+      const updatedUser = localStorage.getItem('user');
+      if (updatedUser) {
+        setUser(JSON.parse(updatedUser));
+      } else {
+        setUser(null);
+      }
+      // Refetch profile data to ensure navbar is up to date
+      if (localStorage.getItem('token')) {
+        refetchProfile();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userUpdated', () => {
+        const updatedUser = localStorage.getItem('user');
+        if (updatedUser) {
+          setUser(JSON.parse(updatedUser));
+        }
+        // Refetch profile data to ensure navbar is up to date
+        if (localStorage.getItem('token')) {
+          refetchProfile();
+        }
+      });
+    };
+  }, []);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNavItem, setSelectedNavItem] = useState("");
@@ -115,12 +178,18 @@ export default function Navbar({ onLoginClick }) {
 
           {/* utility buttons */}
           <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
-            <button
-              onClick={onLoginClick}
-              className="text-sm hover:text-white whitespace-nowrap"
-            >
-              تسجيل الدخول
-            </button>
+            {user ? (
+              <span className="text-sm text-white whitespace-nowrap">
+                أهلاً {user.name}
+              </span>
+            ) : (
+              <button
+                onClick={onLoginClick}
+                className="text-sm hover:text-white whitespace-nowrap"
+              >
+                تسجيل الدخول
+              </button>
+            )}
             <button className="flex items-center gap-1 text-sm text-white/90 hover:text-white whitespace-nowrap">
               <span>EN</span>
               <svg
@@ -141,11 +210,19 @@ export default function Navbar({ onLoginClick }) {
     to="/profile"
     className="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border-2 border-white hover:opacity-90 transition"
   >
-    <img
-      src="/assets/images/images/Frame 755.png"
-      alt="Profile"
-      className="object-cover w-full h-full"
-    />
+    {user?.avatar ? (
+      <img
+        src={user.avatar.startsWith('http') ? user.avatar : `http://localhost:8000${user.avatar}`}
+        alt="Profile"
+        className="object-cover w-full h-full"
+      />
+    ) : (
+      <img
+        src="/assets/images/images/Frame 755.png"
+        alt="Profile"
+        className="object-cover w-full h-full"
+      />
+    )}
   </Link>
           </div>
         </div>
@@ -232,10 +309,10 @@ export default function Navbar({ onLoginClick }) {
                 البث المباشر
               </Link>
               <Link
-                to="/advertisement"
-                onClick={(e) => handleNavItemClick("/advertisement", e)}
+                to="/exhibitions"
+                onClick={(e) => handleNavItemClick("/exhibitions", e)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                  isNavItemActive("/advertisement")
+                  isNavItemActive("/exhibitions")
                     ? "bg-[#0b0b0b] text-white"
                     : "hover:bg-[#0b0b0b]/10"
                 }`}
@@ -250,11 +327,37 @@ export default function Navbar({ onLoginClick }) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                   />
                 </svg>
-                إعلانات
+                المعروضات
               </Link>
+              {user && (
+                <Link
+                  to="/advertisement"
+                  onClick={(e) => handleNavItemClick("/advertisement", e)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 ${
+                    isNavItemActive("/advertisement")
+                      ? "bg-[#0b0b0b] text-white"
+                      : "hover:bg-[#0b0b0b]/10"
+                  }`}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                    />
+                  </svg>
+                  إعلانات
+                </Link>
+              )}
               <Link
                 to="/about"
                 onClick={(e) => handleNavItemClick("/about", e)}
@@ -279,30 +382,32 @@ export default function Navbar({ onLoginClick }) {
                 </svg>
                 من نحن
               </Link>
-              <Link
-                to="/saved"
-                onClick={(e) => handleNavItemClick("/saved", e)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                  isNavItemActive("/saved")
-                    ? "bg-[#0b0b0b] text-white"
-                    : "hover:bg-[#0b0b0b]/10"
-                }`}
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              {user && (
+                <Link
+                  to="/saved"
+                  onClick={(e) => handleNavItemClick("/saved", e)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 ${
+                    isNavItemActive("/saved")
+                      ? "bg-[#0b0b0b] text-white"
+                      : "hover:bg-[#0b0b0b]/10"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                المفضلة
-              </Link>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                  المفضلة
+                </Link>
+              )}
             </div>
 
             {/* hamburger menu button for mobile */}
@@ -481,13 +586,13 @@ export default function Navbar({ onLoginClick }) {
                   البث المباشر
                 </Link>
                 <Link
-                  to="/advertisement"
+                  to="/exhibitions"
                   onClick={(e) => {
-                    handleNavItemClick("/advertisement", e);
+                    handleNavItemClick("/exhibitions", e);
                     closeMenu();
                   }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 text-lg ${
-                    isNavItemActive("/advertisement")
+                    isNavItemActive("/exhibitions")
                       ? "bg-[#0b0b0b] text-white"
                       : "hover:bg-[#0b0b0b]/10"
                   }`}
@@ -502,11 +607,40 @@ export default function Navbar({ onLoginClick }) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                     />
                   </svg>
-                  إعلانات
+                  المعروضات
                 </Link>
+                {user && (
+                  <Link
+                    to="/advertisement"
+                    onClick={(e) => {
+                      handleNavItemClick("/advertisement", e);
+                      closeMenu();
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 text-lg ${
+                      isNavItemActive("/advertisement")
+                        ? "bg-[#0b0b0b] text-white"
+                        : "hover:bg-[#0b0b0b]/10"
+                    }`}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                      />
+                    </svg>
+                    إعلانات
+                  </Link>
+                )}
                 <Link
                   to="/about"
                   onClick={(e) => {
@@ -534,33 +668,35 @@ export default function Navbar({ onLoginClick }) {
                   </svg>
                   من نحن
                 </Link>
-                <Link
-                  to="/saved"
-                  onClick={(e) => {
-                    handleNavItemClick("/saved", e);
-                    closeMenu();
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 text-lg ${
-                    isNavItemActive("/saved")
-                      ? "bg-[#0b0b0b] text-white"
-                      : "hover:bg-[#0b0b0b]/10"
-                  }`}
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                {user && (
+                  <Link
+                    to="/saved"
+                    onClick={(e) => {
+                      handleNavItemClick("/saved", e);
+                      closeMenu();
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 text-lg ${
+                      isNavItemActive("/saved")
+                        ? "bg-[#0b0b0b] text-white"
+                        : "hover:bg-[#0b0b0b]/10"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                  المفضلة
-                </Link>
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                    المفضلة
+                  </Link>
+                )}
               </nav>
             </div>
           </div>

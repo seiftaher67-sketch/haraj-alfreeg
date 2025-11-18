@@ -1,9 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
+import { authAPI } from "../../../services/api";
 
 const Logout = () => {
-  const handleLogout = () => {
-    alert("تم تسجيل الخروج بنجاح!");
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      await authAPI.logout();
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      // Dispatch event to update navbar immediately
+      window.dispatchEvent(new Event('userUpdated'));
+      // Redirect to home
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Even if API fails, clear local storage and redirect
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      // Dispatch event to update navbar immediately
+      window.dispatchEvent(new Event('userUpdated'));
+      navigate('/');
+    }
   };
 
   return (
@@ -14,9 +37,10 @@ const Logout = () => {
         <p className="text-gray-600 mb-6">هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟</p>
         <button
           onClick={handleLogout}
-          className="w-full py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+          disabled={isLoading}
+          className="w-full py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          تأكيد تسجيل الخروج
+          {isLoading ? 'جاري تسجيل الخروج...' : 'تأكيد تسجيل الخروج'}
         </button>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './services/api';
 import { NotificationsProvider } from './context/NotificationsContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -19,6 +21,7 @@ import ChineseCars from './pages/ChineseCars';
 import CarDetails from './pages/CarDetails';
 import PaymentPage from './pages/PaymentPage';
 import LiveBroadcast from './pages/LiveBroadcast';
+import LiveBroadcastDetail from './pages/LiveBroadcastDetail';
 import ProfileHome from './pages/profile/ProfileHome';
 import ProfileDashboard from './pages/profile/ProfileDashboard';
 import AccountPayments from './pages/profile/AccountPayments';
@@ -35,74 +38,81 @@ import Location from './pages/profile/settings/Location';
 import TermsAndConditions from './pages/TermsAndConditions';
 import Complaints from './pages/Complaints';
 import FAQ from './pages/FAQ';
+import EmailVerification from './pages/EmailVerification';
+import Exhibitions from './pages/Exhibitions';
 
 function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   return (
-    <NotificationsProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <div className="min-h-screen flex flex-col bg-gray-50 text-right">
-          <Navbar onLoginClick={() => setIsLoginModalOpen(true)} />
-          <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-           
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/auctions" element={<Auctions />} />
-            
-            <Route path="/advertisement" element={<Advertisement />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/saved" element={<Saved />} />
-            <Route path="/chinese-cars" element={<ChineseCars />} />
-            <Route path="/car-details" element={<CarDetails />} />
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/live-broadcast" element={<LiveBroadcast />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-            <Route path="/complaints" element={<Complaints />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/profile" element={<ProfileHome />}>
-              <Route index element={<ProfileDashboard />} />
-              <Route path="dashboard" element={<ProfileDashboard />} />
-              <Route path="account-payments" element={<AccountPayments />} />
-              <Route path="bid-history" element={<BidHistory />} />
-              <Route path="recharge" element={<Recharge />} />
-              <Route path="settings" element={<SettingsHome />} />
-              <Route path="profile-edit" element={<ProfileEdit />} />
-              <Route path="location" element={<Location />} />
-              <Route path="support" element={<Support />} />
-              <Route path="contact" element={<Support />} />
-              <Route path="complaints" element={<Support />} />
-              <Route path="legal" element={<TermsAndConditions />} />
-              <Route path="logout" element={<Logout />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="change-password" element={<ChangePassword />} />
-            </Route>
-          </Routes>
-        </main>
-        <Footer />
-        <LoginModal
-          isOpen={isLoginModalOpen}
-          onClose={() => setIsLoginModalOpen(false)}
-          onRegisterClick={() => {
-            setIsLoginModalOpen(false);
-            setIsRegisterModalOpen(true);
-          }}
-        />
-        <RegisterModal
-          isOpen={isRegisterModalOpen}
-          onClose={() => setIsRegisterModalOpen(false)}
-          onLoginClick={() => {
-            setIsRegisterModalOpen(false);
-            setIsLoginModalOpen(true);
-          }}
-        />
-      </div>
-    </BrowserRouter>
-    </NotificationsProvider>
+    <QueryClientProvider client={queryClient}>
+      <NotificationsProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <div className="min-h-screen flex flex-col bg-gray-50 text-right">
+            <Navbar onLoginClick={() => setIsLoginModalOpen(true)} />
+            <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/auctions" element={<Auctions />} />
+
+              <Route path="/advertisement" element={localStorage.getItem('token') ? <Advertisement /> : <Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/saved" element={<Saved />} />
+              <Route path="/chinese-cars" element={<ChineseCars />} />
+              <Route path="/car-details" element={<CarDetails />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/live-broadcast" element={<LiveBroadcast />} />
+              <Route path="/live-broadcast/:id" element={<LiveBroadcastDetail />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/email-verification" element={<EmailVerification />} />
+              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+              <Route path="/complaints" element={<Complaints />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/exhibitions" element={<Exhibitions />} />
+              <Route path="/profile" element={<ProfileHome />}>
+                <Route index element={<ProfileDashboard />} />
+                <Route path="dashboard" element={<ProfileDashboard />} />
+                <Route path="account-payments" element={<AccountPayments />} />
+                <Route path="bid-history" element={<BidHistory />} />
+                <Route path="recharge" element={<Recharge />} />
+                <Route path="settings" element={<SettingsHome />} />
+                <Route path="profile-edit" element={<ProfileEdit />} />
+                <Route path="location" element={<Location />} />
+                <Route path="support" element={<Support />} />
+                <Route path="contact" element={<Support />} />
+                <Route path="complaints" element={<Support />} />
+                <Route path="legal" element={<TermsAndConditions />} />
+                <Route path="logout" element={<Logout />} />
+                <Route path="notifications" element={<Notifications />} />
+                <Route path="change-password" element={<ChangePassword />} />
+              </Route>
+            </Routes>
+          </main>
+          <Footer />
+          <LoginModal
+            isOpen={isLoginModalOpen}
+            onClose={() => setIsLoginModalOpen(false)}
+            onRegisterClick={() => {
+              setIsLoginModalOpen(false);
+              setIsRegisterModalOpen(true);
+            }}
+          />
+          <RegisterModal
+            isOpen={isRegisterModalOpen}
+            onClose={() => setIsRegisterModalOpen(false)}
+            onLoginClick={() => {
+              setIsRegisterModalOpen(false);
+              setIsLoginModalOpen(true);
+            }}
+          />
+        </div>
+      </BrowserRouter>
+      </NotificationsProvider>
+    </QueryClientProvider>
   );
 }
 
