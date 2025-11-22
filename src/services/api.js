@@ -261,6 +261,25 @@ export const walletAPI = {
 
 // Listing API functions
 export const listingAPI = {
+  getListings: async (params = {}) => {
+    const query = new URLSearchParams(params);
+    const response = await fetch(`${API_BASE_URL}/listings?${query}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch listings');
+    }
+
+    return data;
+  },
+
   createListing: async (listingData) => {
     const token = localStorage.getItem('token');
     const formData = new FormData();
@@ -350,6 +369,28 @@ export const bannerAPI = {
 
     if (!response.ok) {
       throw new Error(data.message || 'Failed to fetch banners');
+    }
+
+    return data;
+  },
+};
+
+// Auction API functions
+export const auctionAPI = {
+  getAuctions: async (params = {}) => {
+    const query = new URLSearchParams(params);
+    const response = await fetch(`${API_BASE_URL}/auctions?${query}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch auctions');
     }
 
     return data;

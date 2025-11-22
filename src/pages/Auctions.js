@@ -1,176 +1,123 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AuctionCard from '../components/AuctionCard';
+import { auctionAPI } from '../services/api';
 
 export default function Auctions() {
-  // بيانات وهمية للمزادات
-  const dummyAuctions = [
-    {
-      id: 1,
-      image: '/assets/images/trucks/Frame 112.png',
-      title: 'M.A.N - 26.320 TGS',
-      price: '4000',
-      minPrice: '500',
-      model: 'TGS',
-      serialNumber: '12346',
-      bidsCount: '25',
-      year: '2022',
-      remainingTime: '07 : 15 : 01',
-      status: 'Opening',
-    },
-    {
-      id: 2,
-      image: '/assets/images/trucks/Frame 113.png',
-      title: 'Mercedes-Benz Actros',
-      price: '5500',
-      minPrice: '800',
-      model: 'Actros',
-      serialNumber: '78901',
-      bidsCount: '18',
-      year: '2021',
-      remainingTime: '05 : 30 : 45',
-      status: 'Opening',
-    },
-    {
-      id: 3,
-      image: '/assets/images/trucks/Frame 114.png',
-      title: 'Volvo FH16',
-      price: '6200',
-      minPrice: '1000',
-      model: 'FH16',
-      serialNumber: '45678',
-      bidsCount: '32',
-      year: '2023',
-      remainingTime: '02 : 45 : 20',
-      status: 'Opening',
-    },
-    {
-      id: 4,
-      image: '/assets/images/trucks/Frame 113.png',
-      title: 'Scania R500',
-      price: '4800',
-      minPrice: '600',
-      model: 'R500',
-      serialNumber: '23456',
-      bidsCount: '15',
-      year: '2020',
-      remainingTime: '00 : 00 : 00',
-      status: 'Sold',
-    },
-    {
-      id: 5,
-      image: '/assets/images/trucks/Frame 118.png',
-      title: 'DAF XF105',
-      price: '5200',
-      minPrice: '700',
-      model: 'XF105',
-      serialNumber: '34567',
-      bidsCount: '0',
-      year: '2024',
-      remainingTime: '10 : 00 : 00',
-      status: 'Upcoming',
-    },
-    {
-      id: 6,
-      image: '/assets/images/trucks/Frame 119.png',
-      title: 'Iveco Stralis',
-      price: '4500',
-      minPrice: '550',
-      model: 'Stralis',
-      serialNumber: '56789',
-      bidsCount: '22',
-      year: '2022',
-      remainingTime: '08 : 20 : 10',
-      status: 'Opening',
-    },
-  ];
+  const [activeTab, setActiveTab] = useState('all');
+  const [auctions, setAuctions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        setLoading(true);
+        const response = await auctionAPI.getAuctions();
+        // Transform API data to match component expectations
+        const transformedAuctions = response.data.map(auction => ({
+          id: auction.id,
+          image: auction.listing?.media?.[0] || '/assets/images/trucks/default.png',
+          title: auction.listing?.title || 'Unknown Auction',
+          price: auction.current_price || auction.starting_price,
+          minPrice: auction.min_increment || '0',
+          model: auction.listing?.model || 'N/A',
+          serialNumber: auction.listing?.serial_number || 'N/A',
+          bidsCount: auction.bids?.length || 0,
+          year: auction.listing?.registration_year || 'N/A',
+          remainingTime: '00 : 00 : 00', // Placeholder, calculate if needed
+          status: auction.status,
+          auction_type: auction.type,
+          buy_now: auction.listing?.buy_now,
+          kilometers: auction.listing?.kilometers,
+        }));
+        setAuctions(transformedAuctions);
+      } catch (err) {
+        setError('Failed to load auctions');
+        console.error('Error fetching auctions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAuctions();
+  }, []);
+
+  const filteredAuctions = activeTab === 'all' ? auctions : auctions.filter(auction => auction.status === 'upcoming');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f2b400] mx-auto"></div>
+            <p className="mt-4 text-gray-600">جاري تحميل المزادات...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center py-12">
+            <p className="text-red-600">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dummyAuctions.map((auction) => (
-          <AuctionCard key={auction.id} auction={auction} />
-        ))}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">المزادات</h1>
+          <p className="text-gray-600">استكشف المزادات المتاحة</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-lg p-1 shadow-sm border">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                activeTab === 'all'
+                  ? 'bg-[#f2b400] text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              جميع المزادات
+            </button>
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                activeTab === 'upcoming'
+                  ? 'bg-[#f2b400] text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              المزادات القادمة
+            </button>
+          </div>
+        </div>
+
+        {/* Auctions Grid */}
+        {filteredAuctions.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">لا توجد مزادات متاحة حالياً</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredAuctions.map((auction) => (
+              <AuctionCard key={auction.id} auction={auction} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-export const auctions = [
-  {
-    id: 1,
-    image: "/assets/images/trucks/Frame 112.png",
-    title: "M.A.N - 26.320 TGS",
-    price: "4000",
-    minPrice: "500",
-    model: "TGS",
-    serialNumber: "12346",
-    bidsCount: "25",
-    year: "2022",
-    remainingTime: "07 : 15 : 01",
-    status: "Opening",
-  },
-  {
-    id: 2,
-    image: "/assets/images/trucks/Frame 113.png",
-    title: "Mercedes-Benz Actros",
-    price: "5500",
-    minPrice: "800",
-    model: "Actros",
-    serialNumber: "78901",
-    bidsCount: "18",
-    year: "2021",
-    remainingTime: "05 : 30 : 45",
-    status: "Opening",
-  },
-  {
-    id: 3,
-    image: "/assets/images/trucks/Frame 114.png",
-    title: "Volvo FH16",
-    price: "6200",
-    minPrice: "1000",
-    model: "FH16",
-    serialNumber: "45678",
-    bidsCount: "32",
-    year: "2023",
-    remainingTime: "02 : 45 : 20",
-    status: "Opening",
-  },
-  {
-    id: 4,
-    image: "/assets/images/trucks/Frame 113.png",
-    title: "Scania R500",
-    price: "4800",
-    minPrice: "600",
-    model: "R500",
-    serialNumber: "23456",
-    bidsCount: "15",
-    year: "2020",
-    remainingTime: "00 : 00 : 00",
-    status: "Sold",
-  },
-  {
-    id: 5,
-    image: "/assets/images/trucks/Frame 118.png",
-    title: "DAF XF105",
-    price: "5200",
-    minPrice: "700",
-    model: "XF105",
-    serialNumber: "34567",
-    bidsCount: "0",
-    year: "2024",
-    remainingTime: "10 : 00 : 00",
-    status: "Upcoming",
-  },
-  {
-    id: 6,
-    image: "/assets/images/trucks/Frame 119.png",
-    title: "Iveco Stralis",
-    price: "4500",
-    minPrice: "550",
-    model: "Stralis",
-    serialNumber: "56789",
-    bidsCount: "22",
-    year: "2022",
-    remainingTime: "08 : 20 : 10",
-    status: "Opening",
-  },
-];
+

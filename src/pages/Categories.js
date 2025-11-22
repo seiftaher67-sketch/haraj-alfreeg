@@ -1,6 +1,14 @@
-import React, { useState } from "react";
-import AuctionCard from "../components/AuctionCard";
+import React, { useEffect, useState } from "react";
 import { FaTruck, FaCar, FaTrailer, FaCog } from "react-icons/fa";
+import AuctionCard from "../components/AuctionCard";
+
+const API_BASE_URL = "http://localhost:8000"; // عدّل إن كان مختلفاً
+
+const getMediaUrl = (path) => {
+  if (!path) return "/assets/images/placeholder.png";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${API_BASE_URL}/storage/${path}`;
+};
 
 export const categories = [
   { name: "شاحنات", icon: FaTruck },
@@ -21,22 +29,51 @@ const Categories = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedCards, setSelectedCards] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const vehicles = [
-    {
-      // id: 1,
-      // title: 'MERCEDES',
-      // price: '2500000',
-      // minPrice: '205000',
-      // serialNumber: '12345',
-      // model: 'BENZ',
-      // auctionCount: 3,
-      // remainingTime: '08:15:02',
-      // image: '/assets/images/trucks/Frame 113.png',
-      // status: 'Opening'
-    },
-    // Add more vehicle data as needed
-  ];
+  useEffect(() => {
+    let mounted = true;
+    const fetchListings = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${API_BASE_URL}/api/listings`);
+        const json = await res.json();
+        const payload = Array.isArray(json) ? json : (json.data || json);
+        const items = Array.isArray(payload) ? payload : [];
+        const approved = items.filter(
+          (i) =>
+            i.approval_status === "approved" || i.approval_status === "Approved"
+        );
+        const mapped = approved.map((item) => ({
+          id: item.id,
+          image:
+            item.media && item.media.length
+              ? getMediaUrl(item.media[0])
+              : "/assets/images/placeholder.png",
+          title: item.title || `اعلان ${item.id}`,
+          price: item.price_in_sar || item.price || "—",
+          minPrice: item.price_in_points || item.min_price || "—",
+          model: item.model || "—",
+          serialNumber: item.serial_number || item.serial || "—",
+          remainingTime: item.remainingTime || "00 : 00 : 00",
+          status: "Opening",
+          bidsCount: item.bids_count || 0,
+        }));
+        if (mounted) setListings(mapped);
+      } catch (err) {
+        console.error(err);
+        if (mounted) setError(err.message || String(err));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchListings();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const toggleCategory = (category) => {
     setSelectedCategories((prev) =>
@@ -56,6 +93,10 @@ const Categories = () => {
     setOpenDropdown(openDropdown === filterName ? null : filterName);
   };
 
+  if (loading) return <div className="p-6 text-center">جاري التحميل...</div>;
+  if (error) return <div className="p-6 text-center text-red-600">خطأ: {error}</div>;
+  if (!listings.length) return <div className="p-6 text-center">لا توجد إعلانات موافق عليها</div>;
+
   return (
     <div dir="rtl" className="flex flex-col bg-gray-50 text-[#0b0b0b]">
       {/* CATEGORIES SECTION */}
@@ -65,9 +106,7 @@ const Categories = () => {
             <h2 className="text-2xl font-bold">الفئات</h2>
 
             <div className="flex items-center gap-3">
-              <button className="bg-black text-white px-6 py-2 rounded-lg">
-                بحث
-              </button>
+              <button className="bg-black text-white px-6 py-2 rounded-lg">بحث</button>
             </div>
           </div>
 
@@ -120,14 +159,12 @@ const Categories = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {vehicles.map((v) => (
+            {listings.map((v) => (
               <div
                 key={v.id}
                 onClick={() => toggleCardSelection(v.id)}
                 className={`cursor-pointer transition-all ${
-                  selectedCards.includes(v.id)
-                    ? "ring-2 ring-blue-500 rounded-2xl"
-                    : ""
+                  selectedCards.includes(v.id) ? "ring-2 ring-blue-500 rounded-2xl" : ""
                 }`}
               >
                 <AuctionCard auction={v} />

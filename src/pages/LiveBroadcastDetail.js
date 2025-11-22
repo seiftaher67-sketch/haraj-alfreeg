@@ -127,21 +127,64 @@ function LiveBroadcastDetail() {
             {/* Right Side - Video Player (65%) */}
             <div className="w-3/5">
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="relative aspect-video">
-                  <iframe
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${video.videoId}`}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-                  {video.isLive && (
-                    <div className="absolute top-4 left-4 bg-red-600 text-white rounded-full px-3 py-1 flex items-center gap-2 shadow-lg">
-                      <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                      <span className="text-sm font-medium">مباشر الآن</span>
-                    </div>
-                  )}
-                </div>
+                {video.streams && video.streams.length > 0 ? (
+                  <div className="space-y-4">
+                    {video.streams.filter(s => s.is_active).map((stream, index) => (
+                      <div key={index} className="bg-white rounded-lg overflow-hidden">
+                        <div className="p-3 bg-gray-50 border-b">
+                          <span className="font-medium capitalize">{stream.platform}</span>
+                        </div>
+                        {stream.embed_url ? (
+                          <div className="relative aspect-video">
+                            <iframe
+                              className="w-full h-full"
+                              src={stream.embed_url}
+                              title={video.title}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                            />
+                            {video.isLive && (
+                              <div className="absolute top-4 left-4 bg-red-600 text-white rounded-full px-3 py-1 flex items-center gap-2 shadow-lg">
+                                <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                                <span className="text-sm font-medium">مباشر الآن</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                            <div className="text-center">
+                              <p className="text-gray-600 mb-2">لا يمكن تضمين هذا البث مباشرة</p>
+                              <a
+                                href={stream.watch_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-[#f2b400] text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+                              >
+                                شاهد على {stream.platform}
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="relative aspect-video">
+                    <iframe
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${video.videoId}`}
+                      title={video.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                    {video.isLive && (
+                      <div className="absolute top-4 left-4 bg-red-600 text-white rounded-full px-3 py-1 flex items-center gap-2 shadow-lg">
+                        <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium">مباشر الآن</span>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="p-6">
                   <h3 className="text-xl font-bold mb-2">{video.title}</h3>
                   <p className="text-gray-600 mb-4">{video.description}</p>

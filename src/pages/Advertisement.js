@@ -293,29 +293,7 @@ export default function Advertisement() {
         <h2 className="text-xl font-semibold">قم بإنشاء إعلان خاص بك</h2>
       </div>
 
-      {/* Ad type */}
-      <div className="flex flex-wrap gap-4 md:gap-6 mb-6">
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="adType"
-            value="ad"
-            checked={form.adType === "ad"}
-            onChange={handleChange}
-          />
-          <span>إعلان</span>
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="adType"
-            value="auction"
-            checked={form.adType === "auction"}
-            onChange={handleChange}
-          />
-          <span>مزاد</span>
-        </label>
-      </div>
+
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Upload section */}

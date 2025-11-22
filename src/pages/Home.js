@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import AuctionCard from "../components/AuctionCard";
-import { FaTruck, FaCar, FaTrailer, FaCog } from "react-icons/fa";
+import { FaTruck, FaCar, FaTrailer, FaCog, FaPhone, FaWhatsapp, FaSnapchatGhost } from "react-icons/fa";
 import { MdChevronLeft } from "react-icons/md";
 import l1 from "../styles/l1.png";
 import l2 from "../styles/l2.png";
@@ -13,7 +13,15 @@ import l7 from "../styles/l7.png";
 import l8 from "../styles/l8.png";
 import Group1 from "../assets/Group 1.png";
 import Group2 from "../assets/Group 2.png";
-import { bannerAPI } from "../services/api";
+import { bannerAPI, listingAPI } from "../services/api";
+
+const API_BASE_URL = "http://localhost:8000"; // عدّل إن كان مختلفاً
+
+const getMediaUrl = (path) => {
+  if (!path) return "/assets/images/placeholder.png";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${API_BASE_URL}/storage/${path}`;
+};
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -23,6 +31,7 @@ function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listings, setListings] = useState([]);
   const images = [
     l1,
     l2,
@@ -33,24 +42,6 @@ function Home() {
     l7,
     l8,
   ];
-
-  const vehicles = [
-    {
-      id: 1,
-      title: "MERCEDES",
-      price: "2500000",
-      minPrice: "205000",
-      serialNumber: "12345",
-      model: "BENZ",
-      auctionCount: 3,
-      remainingTime: "08:15:02",
-      image: "/assets/images/trucks/Frame 113.png",
-      status: "Opening",
-    },
-    // ...باقي البيانات
-  ];
-
-  const filteredVehicles = vehicles;
 
   const nextSlide = useCallback(() => setCurrentSlide((p) => (p + 1) % slides.length), [slides.length]);
 
@@ -92,6 +83,20 @@ function Home() {
     };
 
     fetchBanners();
+  }, []);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const data = await listingAPI.getListings();
+        setListings(data.data || []);
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+        setListings([]);
+      }
+    };
+
+    fetchListings();
   }, []);
 
   useEffect(() => {
@@ -265,16 +270,33 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-            ].map((vehicle, index) => (
-              <AuctionCard key={`${vehicle.id}-${index}`} auction={vehicle} />
-            ))}
+            {listings.map((listing) => {
+              const mappedListing = {
+                id: listing.id,
+                title: listing.title,
+                price: listing.price,
+                minPrice: listing.price,
+                serialNumber: listing.serial_number,
+                model: listing.model,
+                bidsCount: 0,
+                remainingTime: '00:00:00',
+                image: getMediaUrl(listing.media[0]),
+                status: 'Opening',
+              };
+              return (
+                <div
+                  key={listing.id}
+                  onClick={() => toggleCardSelection(listing.id)}
+                  className={`cursor-pointer transition-all ${
+                    selectedCards.includes(listing.id)
+                      ? "ring-2 ring-blue-500 rounded-2xl"
+                      : ""
+                  }`}
+                >
+                  <AuctionCard auction={mappedListing} />
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex justify-center mt-8">
@@ -511,26 +533,33 @@ function Home() {
           <h3 className="text-xl font-semibold mb-4">الأكثر شهرة</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-              ...filteredVehicles,
-            ].map((v, index) => (
-              <div
-                key={`${v.id}-${index}`}
-                onClick={() => toggleCardSelection(v.id)}
-                className={`cursor-pointer transition-all ${
-                  selectedCards.includes(v.id)
-                    ? "ring-2 ring-blue-500 rounded-2xl"
-                    : ""
-                }`}
-              >
-                <AuctionCard auction={v} />
-              </div>
-            ))}
+            {listings.map((listing) => {
+              const mappedListing = {
+                id: listing.id,
+                title: listing.title,
+                price: listing.price,
+                minPrice: listing.price,
+                serialNumber: listing.serial_number,
+                model: listing.model,
+                bidsCount: 0,
+                remainingTime: '00:00:00',
+                image: getMediaUrl(listing.media[0]),
+                status: 'Opening',
+              };
+              return (
+                <div
+                  key={listing.id}
+                  onClick={() => toggleCardSelection(listing.id)}
+                  className={`cursor-pointer transition-all ${
+                    selectedCards.includes(listing.id)
+                      ? "ring-2 ring-blue-500 rounded-2xl"
+                      : ""
+                  }`}
+                >
+                  <AuctionCard auction={mappedListing} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -587,6 +616,133 @@ function Home() {
                 </button>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT SECTION - عرض الشاحنات والمعدات في المزاد */}
+      <section className="relative py-20 bg-gradient-to-b from-white via-[#FAF7F2] to-white overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-100/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-100/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
+
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4 text-[#2D2A26]">هل لديك شاحنة أو معدات تريد عرضها؟</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              إذا كنت تمتلك شاحنة أو معدات ، 
+              يمكنك عرضها في مزاداتنا المباشرة والحصول على أفضل الأسعار.
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border-2 border-[#E8DFD8] mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+              {/* Left: Logo */}
+              <div className="flex justify-end md:justify-center">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#E0AA3E] to-yellow-300 rounded-bl-xl rounded-tr-2xl blur-lg opacity-40"></div>
+                  <img
+                    src="/assets/images/images/Alfouriaj-01 1 (1).png"
+                    alt="شركة الفريج"
+                    className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl object-contain shadow-lg border-4 border-white bg-white p-2"
+                  />
+                </div>
+              </div>
+
+              {/* Center: Text */}
+              <div className="text-center md:text-right">
+                <h3 className="text-2xl md:text-3xl font-bold mb-3 text-[#2D2A26]">تواصل معنا الآن</h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  فريقنا الاحترافي جاهز لمساعدتك في عرض معداتك بأفضل طريقة. 
+                  نوفر لك منصة آمنة وموثوقة للمزايدة المباشرة.
+                </p>
+                <div className="inline-block bg-gradient-to-r from-[#E0AA3E] to-yellow-400 text-white rounded-full px-6 py-2 font-semibold text-sm shadow-lg">
+                  ✓ متخصصون في عرض المعدات الثقيلة
+                </div>
+              </div>
+
+              {/* Right: Contact Methods */}
+              <div className="space-y-4">
+                {/* Phone */}
+                <a
+                  href="tel:+966501030614"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-all duration-300 shadow-md hover:shadow-lg border border-blue-200"
+                >
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                    <FaPhone className="w-6 h-6" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-600 font-medium">اتصل بنا مباشرة</div>
+                    <div className="text-lg font-bold text-[#2D2A26]">0501030614</div>
+                  </div>
+                </a>
+
+                {/* WhatsApp */}
+                <a
+                  href="https://wa.me/966501030614"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-300 shadow-md hover:shadow-lg border border-green-200"
+                >
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+                    <FaWhatsapp className="w-6 h-6" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-600 font-medium">رسالة عبر واتساب</div>
+                    <div className="text-lg font-bold text-[#2D2A26]">+966 50 103 0614</div>
+                  </div>
+                </a>
+
+                {/* Snapchat */}
+                <a
+                  href="https://snapchat.com/add/alforij01"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 transition-all duration-300 shadow-md hover:shadow-lg border border-yellow-200"
+                >
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-yellow-600 group-hover:scale-110 transition-transform">
+                    <FaSnapchatGhost className="w-6 h-6" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-600 font-medium">تواصل عبر سناب شات</div>
+                    <div className="text-lg font-bold text-[#2D2A26]">@alforij01</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional info boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-2xl p-6 border border-[#E8DFD8] shadow-lg hover:shadow-xl transition-all">
+              
+              <h4 className="text-lg font-bold text-[#2D2A26] w-42 h-12 bg-gradient-to-br from-[#E0AA3E] to-yellow-400 rounded-bl-xl rounded-tr-2xl flex items-center justify-center text-white text-xl mb-4">⚙️ معدات متنوعة </h4>
+              <p className="text-gray-600 text-sm">نقبل جميع أنواع المعدات الثقيلة والشاحنات والمقطورات</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-[#E8DFD8] shadow-lg hover:shadow-xl transition-all">
+             
+              <h4 className="text-lg font-bold text-[#2D2A26] w-42 h-12 bg-gradient-to-br from-[#E0AA3E] to-yellow-400 rounded-bl-xl rounded-tr-2xl flex items-center justify-center text-white text-xl mb-4"> 🔒 آمن وموثوق</h4>
+              <p className="text-gray-600 text-sm">منصة آمنة بنسبة 100% مع ضمان سلامة معاملاتك</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-[#E8DFD8] shadow-lg hover:shadow-xl transition-all">
+             
+              <h4 className="text-lg font-bold text-[#2D2A26] w-42 h-12 bg-gradient-to-br from-[#E0AA3E] to-yellow-400 rounded-bl-xl rounded-tr-2xl flex items-center justify-center text-white text-xl mb-4"> 💰 أسعار منافسة</h4>
+              <p className="text-gray-600 text-sm">احصل على أفضل سعر لمعدتك من خلال المزايدات المباشرة</p>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center mt-12">
+            <a href="https://wa.me/966501030614" target="_blank" rel="noreferrer">
+              <button className="inline-flex items-center gap-3 bg-gradient-to-r from-[#E0AA3E] to-yellow-400 hover:from-yellow-500 hover:to-yellow-500 text-white font-bold py-4 px-10 rounded-bl-xl rounded-tr-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+                <FaWhatsapp className="w-6 h-6" />
+                <span>ابدأ الآن - تواصل معنا عبر واتساب</span>
+              </button>
+            </a>
           </div>
         </div>
       </section>

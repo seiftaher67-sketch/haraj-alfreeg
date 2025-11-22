@@ -112,7 +112,7 @@ const EmailVerification = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">تم تفعيل البريد الإلكتروني مسبقاً</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">تم تفعيل البريد الإلكتروني </h2>
             <p className="text-gray-600 mb-4">تم تفعيل بريدك الإلكتروني في:</p>
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <p className="text-lg font-semibold text-gray-800">
