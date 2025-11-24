@@ -1,0 +1,42 @@
+name: Build and Deploy Website to Hostinger (FTP)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Vite or CRA)
+        run: |
+          npm run build
+
+      - name: Choose build directory
+        id: choose
+        run: |
+          if [ -d "dist" ]; then echo "build_dir=dist" >> $GITHUB_OUTPUT; fi
+          if [ -d "build" ]; then echo "build_dir=build" >> $GITHUB_OUTPUT; fi
+          if [ -z "${{ steps.choose.outputs.build_dir }}" ]; then echo "No build folder found" && exit 1; fi
+
+      - name: FTP Deploy to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@4.4.0
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ${{ steps.choose.outputs.build_dir }}
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          passive: true
